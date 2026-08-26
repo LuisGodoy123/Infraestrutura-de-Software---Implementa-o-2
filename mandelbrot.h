@@ -18,4 +18,7 @@ typedef struct {
 int ConverteInteiroPositivo(const char *txt, long *saida);
 int LeArgumentos(int argc, char *argv[], Config *cfg);
 
+void PixelParaComplexo(int col, int lin, int largura, int altura, double *re, double *im);
+int CalculaIteracoes(double cRe, double cIm, int maxIter);
+
 #endif

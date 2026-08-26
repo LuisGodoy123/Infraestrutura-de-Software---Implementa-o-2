@@ -35,19 +35,19 @@ int LeArgumentos(int argc, char *argv[], Config *cfg) {
     long largura, altura, maxIter, numThreads;
 
     if (!ConverteInteiroPositivo(argv[1], &largura)) {
-        fprintf(stderr, "Erro: largura invalida '%s'.\n", argv[1]);
+        fprintf(stderr, "largura invalida '%s'.\n", argv[1]);
         return 0;
     }
     if (!ConverteInteiroPositivo(argv[2], &altura)) {
-        fprintf(stderr, "Erro: altura invalida '%s'.\n", argv[2]);
+        fprintf(stderr, "altura invalida '%s'.\n", argv[2]);
         return 0;
     }
     if (!ConverteInteiroPositivo(argv[3], &maxIter)) {
-        fprintf(stderr, "Erro: max_iteracoes invalido '%s'.\n", argv[3]);
+        fprintf(stderr, "max_iteracoes invalido '%s'.\n", argv[3]);
         return 0;
     }
     if (!ConverteInteiroPositivo(argv[4], &numThreads)) {
-        fprintf(stderr, "Erro: num_threads invalido '%s'.\n", argv[4]);
+        fprintf(stderr, "num_threads invalido '%s'.\n", argv[4]);
         return 0;
     }
 
@@ -56,4 +56,24 @@ int LeArgumentos(int argc, char *argv[], Config *cfg) {
     cfg->maxIter = (int)maxIter;
     cfg->numThreads = (int)numThreads;
     return 1;
+}
+
+void PixelParaComplexo(int col, int lin, int largura, int altura, double *re, double *im) {
+    *re = REAL_MIN + (col / (double)largura) * (REAL_MAX - REAL_MIN);
+    *im = IMAG_MIN + (lin / (double)altura) * (IMAG_MAX - IMAG_MIN);
+}
+
+int CalculaIteracoes(double cRe, double cIm, int maxIter) {
+    double zRe = 0.0, zIm = 0.0;
+    int iter = 0;
+
+    while (zRe * zRe + zIm * zIm <= 4.0 && iter < maxIter) {
+        double zReNovo = zRe * zRe - zIm * zIm + cRe;
+        double zImNovo = 2.0 * zRe * zIm + cIm;
+        zRe = zReNovo;
+        zIm = zImNovo;
+        iter++;
+    }
+
+    return iter;
 }
