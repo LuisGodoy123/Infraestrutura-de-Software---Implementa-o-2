@@ -29,5 +29,6 @@ int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos);
 
 double TempoAtual(void);
 void ExecutaSerial(Config *cfg, unsigned char *buffer);
+void ExecutaOpenMP(Config *cfg, unsigned char *buffer);
 
 #endif

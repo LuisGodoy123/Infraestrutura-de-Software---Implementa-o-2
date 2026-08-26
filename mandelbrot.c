@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+#include <omp.h>
 
 #include "mandelbrot.h"
 
@@ -120,6 +121,18 @@ double TempoAtual(void) {
 }
 
 void ExecutaSerial(Config *cfg, unsigned char *buffer) {
+    for (int lin = 0; lin < cfg->altura; lin++) {
+        for (int col = 0; col < cfg->largura; col++) {
+            double re, im;
+            PixelParaComplexo(col, lin, cfg->largura, cfg->altura, &re, &im);
+            int iter = CalculaIteracoes(re, im, cfg->maxIter);
+            buffer[lin * cfg->largura + col] = (unsigned char)NormalizaIntensidade(iter, cfg->maxIter);
+        }
+    }
+}
+
+void ExecutaOpenMP(Config *cfg, unsigned char *buffer) {
+    #pragma omp parallel for num_threads(cfg->numThreads) schedule(dynamic)
     for (int lin = 0; lin < cfg->altura; lin++) {
         for (int col = 0; col < cfg->largura; col++) {
             double re, im;
