@@ -1,6 +1,9 @@
+#define _POSIX_C_SOURCE 199309L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <time.h>
 
 #include "mandelbrot.h"
 
@@ -108,6 +111,23 @@ int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int
     int erro = ferror(arq);
     fclose(arq);
     return erro == 0;
+}
+
+double TempoAtual(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec / 1e9;
+}
+
+void ExecutaSerial(Config *cfg, unsigned char *buffer) {
+    for (int lin = 0; lin < cfg->altura; lin++) {
+        for (int col = 0; col < cfg->largura; col++) {
+            double re, im;
+            PixelParaComplexo(col, lin, cfg->largura, cfg->altura, &re, &im);
+            int iter = CalculaIteracoes(re, im, cfg->maxIter);
+            buffer[lin * cfg->largura + col] = (unsigned char)NormalizaIntensidade(iter, cfg->maxIter);
+        }
+    }
 }
 
 int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos) {

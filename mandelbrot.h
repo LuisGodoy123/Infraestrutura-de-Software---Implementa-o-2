@@ -27,4 +27,7 @@ unsigned char *AlocaBuffer(int largura, int altura);
 int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int altura);
 int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos);
 
+double TempoAtual(void);
+void ExecutaSerial(Config *cfg, unsigned char *buffer);
+
 #endif
