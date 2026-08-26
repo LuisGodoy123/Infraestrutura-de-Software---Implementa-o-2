@@ -77,3 +77,17 @@ int CalculaIteracoes(double cRe, double cIm, int maxIter) {
 
     return iter;
 }
+
+int NormalizaIntensidade(int iter, int maxIter) {
+    return (int)(255.0 * iter / maxIter);
+}
+
+unsigned char *AlocaBuffer(int largura, int altura) {
+    size_t total = (size_t)largura * (size_t)altura;
+
+    if (largura != 0 && total / (size_t)largura != (size_t)altura) {
+        return NULL;
+    }
+
+    return (unsigned char *)malloc(total);
+}

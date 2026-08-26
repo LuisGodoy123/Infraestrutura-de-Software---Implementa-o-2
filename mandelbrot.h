@@ -21,4 +21,7 @@ int LeArgumentos(int argc, char *argv[], Config *cfg);
 void PixelParaComplexo(int col, int lin, int largura, int altura, double *re, double *im);
 int CalculaIteracoes(double cRe, double cIm, int maxIter);
 
+int NormalizaIntensidade(int iter, int maxIter);
+unsigned char *AlocaBuffer(int largura, int altura);
+
 #endif
