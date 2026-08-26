@@ -24,4 +24,7 @@ int CalculaIteracoes(double cRe, double cIm, int maxIter);
 int NormalizaIntensidade(int iter, int maxIter);
 unsigned char *AlocaBuffer(int largura, int altura);
 
+int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int altura);
+int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos);
+
 #endif
