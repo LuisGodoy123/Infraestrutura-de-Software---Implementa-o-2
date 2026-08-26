@@ -91,3 +91,34 @@ unsigned char *AlocaBuffer(int largura, int altura) {
 
     return (unsigned char *)malloc(total);
 }
+
+int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int altura) {
+    FILE *arq = fopen(nomeArquivo, "w");
+    if (arq == NULL) {
+        return 0;
+    }
+
+    for (int lin = 0; lin < altura; lin++) {
+        for (int col = 0; col < largura; col++) {
+            fprintf(arq, col == largura - 1 ? "%d" : "%d ", buffer[lin * largura + col]);
+        }
+        fprintf(arq, "\n");
+    }
+
+    int erro = ferror(arq);
+    fclose(arq);
+    return erro == 0;
+}
+
+int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos) {
+    FILE *arq = fopen(nomeArquivo, "a");
+    if (arq == NULL) {
+        return 0;
+    }
+
+    fprintf(arq, "%s: %.6f segundos\n", rotulo, segundos);
+
+    int erro = ferror(arq);
+    fclose(arq);
+    return erro == 0;
+}
