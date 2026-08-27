@@ -15,6 +15,13 @@ typedef struct {
     int numThreads;
 } Config;
 
+typedef struct {
+    Config *cfg;
+    unsigned char *buffer;
+    int linhaInicio;
+    int linhaFim;
+} ArgEstatico;
+
 int ConverteInteiroPositivo(const char *txt, long *saida);
 int LeArgumentos(int argc, char *argv[], Config *cfg);
 
@@ -30,5 +37,8 @@ int SalvaTempo(const char *nomeArquivo, const char *rotulo, double segundos);
 double TempoAtual(void);
 void ExecutaSerial(Config *cfg, unsigned char *buffer);
 void ExecutaOpenMP(Config *cfg, unsigned char *buffer);
+
+void *TrabalhoEstatico(void *arg);
+int ExecutaPthreadsEstatico(Config *cfg, unsigned char *buffer);
 
 #endif

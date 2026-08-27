@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <time.h>
 #include <omp.h>
+#include <pthread.h>
 
 #include "mandelbrot.h"
 
@@ -129,6 +130,63 @@ void ExecutaSerial(Config *cfg, unsigned char *buffer) {
             buffer[lin * cfg->largura + col] = (unsigned char)NormalizaIntensidade(iter, cfg->maxIter);
         }
     }
+}
+
+void *TrabalhoEstatico(void *arg) {
+    ArgEstatico *a = (ArgEstatico *)arg;
+
+    for (int lin = a->linhaInicio; lin < a->linhaFim; lin++) {
+        for (int col = 0; col < a->cfg->largura; col++) {
+            double re, im;
+            PixelParaComplexo(col, lin, a->cfg->largura, a->cfg->altura, &re, &im);
+            int iter = CalculaIteracoes(re, im, a->cfg->maxIter);
+            a->buffer[lin * a->cfg->largura + col] = (unsigned char)NormalizaIntensidade(iter, a->cfg->maxIter);
+        }
+    }
+
+    return NULL;
+}
+
+int ExecutaPthreadsEstatico(Config *cfg, unsigned char *buffer) {
+    int n = cfg->numThreads;
+    pthread_t *threads = malloc((size_t)n * sizeof(pthread_t));
+    ArgEstatico *args = malloc((size_t)n * sizeof(ArgEstatico));
+
+    if (threads == NULL || args == NULL) {
+        free(threads);
+        free(args);
+        return 0;
+    }
+
+    int linhasPorThread = cfg->altura / n;
+    int resto = cfg->altura % n;
+    int linhaAtual = 0;
+
+    for (int i = 0; i < n; i++) {
+        int linhas = linhasPorThread + (i < resto ? 1 : 0);
+        args[i].cfg = cfg;
+        args[i].buffer = buffer;
+        args[i].linhaInicio = linhaAtual;
+        args[i].linhaFim = linhaAtual + linhas;
+        linhaAtual += linhas;
+
+        if (pthread_create(&threads[i], NULL, TrabalhoEstatico, &args[i]) != 0) {
+            for (int j = 0; j < i; j++) {
+                pthread_join(threads[j], NULL);
+            }
+            free(threads);
+            free(args);
+            return 0;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    free(threads);
+    free(args);
+    return 1;
 }
 
 void ExecutaOpenMP(Config *cfg, unsigned char *buffer) {
