@@ -1,6 +1,8 @@
 #ifndef MANDELBROT_H
 #define MANDELBROT_H
 
+#include <pthread.h>
+
 #define LOGIN "lagi"
 
 #define REAL_MIN -2.0
@@ -22,6 +24,13 @@ typedef struct {
     int linhaFim;
 } ArgEstatico;
 
+typedef struct {
+    Config *cfg;
+    unsigned char *buffer;
+    int proximaLinha;
+    pthread_mutex_t mutex;
+} ArgDinamico;
+
 int ConverteInteiroPositivo(const char *txt, long *saida);
 int LeArgumentos(int argc, char *argv[], Config *cfg);
 
@@ -40,5 +49,8 @@ void ExecutaOpenMP(Config *cfg, unsigned char *buffer);
 
 void *TrabalhoEstatico(void *arg);
 int ExecutaPthreadsEstatico(Config *cfg, unsigned char *buffer);
+
+void *TrabalhoDinamico(void *arg);
+int ExecutaPthreadsDinamico(Config *cfg, unsigned char *buffer);
 
 #endif

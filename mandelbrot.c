@@ -189,6 +189,71 @@ int ExecutaPthreadsEstatico(Config *cfg, unsigned char *buffer) {
     return 1;
 }
 
+void *TrabalhoDinamico(void *arg) {
+    ArgDinamico *a = (ArgDinamico *)arg;
+
+    while (1) {
+        pthread_mutex_lock(&a->mutex);
+        int lin = a->proximaLinha;
+        if (lin < a->cfg->altura) {
+            a->proximaLinha++;
+        }
+        pthread_mutex_unlock(&a->mutex);
+
+        if (lin >= a->cfg->altura) {
+            break;
+        }
+
+        for (int col = 0; col < a->cfg->largura; col++) {
+            double re, im;
+            PixelParaComplexo(col, lin, a->cfg->largura, a->cfg->altura, &re, &im);
+            int iter = CalculaIteracoes(re, im, a->cfg->maxIter);
+            a->buffer[lin * a->cfg->largura + col] = (unsigned char)NormalizaIntensidade(iter, a->cfg->maxIter);
+        }
+    }
+
+    return NULL;
+}
+
+int ExecutaPthreadsDinamico(Config *cfg, unsigned char *buffer) {
+    int n = cfg->numThreads;
+    pthread_t *threads = malloc((size_t)n * sizeof(pthread_t));
+
+    if (threads == NULL) {
+        return 0;
+    }
+
+    ArgDinamico a;
+    a.cfg = cfg;
+    a.buffer = buffer;
+    a.proximaLinha = 0;
+
+    if (pthread_mutex_init(&a.mutex, NULL) != 0) {
+        free(threads);
+        return 0;
+    }
+
+    int criadas = 0;
+    int falhou = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (pthread_create(&threads[i], NULL, TrabalhoDinamico, &a) != 0) {
+            falhou = 1;
+            break;
+        }
+        criadas++;
+    }
+
+    for (int i = 0; i < criadas; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    pthread_mutex_destroy(&a.mutex);
+    free(threads);
+
+    return !falhou;
+}
+
 void ExecutaOpenMP(Config *cfg, unsigned char *buffer) {
     #pragma omp parallel for num_threads(cfg->numThreads) schedule(dynamic)
     for (int lin = 0; lin < cfg->altura; lin++) {
