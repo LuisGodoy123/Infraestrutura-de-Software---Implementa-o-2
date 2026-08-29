@@ -1,0 +1,75 @@
+Testes - Mandelbrot (login: lagi)
+Ambiente: WSL Ubuntu, gcc 15.2.0
+
+$ make clean
+rm -f mandelbrot
+$ make
+gcc -Wall -Wextra -O2 -std=c11 -fopenmp -pthread -o mandelbrot mandelbrot.c
+
+$ ./mandelbrot
+Uso: ./mandelbrot <largura> <altura> <max_iteracoes> <num_threads>
+$ echo $?
+1
+
+$ ./mandelbrot 100 100
+Uso: ./mandelbrot <largura> <altura> <max_iteracoes> <num_threads>
+$ echo $?
+1
+
+$ ./mandelbrot abc 100 100 4
+largura invalida 'abc'.
+$ echo $?
+1
+
+$ ./mandelbrot 0 100 100 4
+largura invalida '0'.
+$ echo $?
+1
+
+$ ./mandelbrot -10 100 100 4
+largura invalida '-10'.
+$ echo $?
+1
+
+$ ./mandelbrot 100 100 100 0
+num_threads invalido '0'.
+$ echo $?
+1
+
+$ ./mandelbrot 200 150 500 4 > stdout_capturado.txt
+$ echo $?
+0
+$ wc -c stdout_capturado.txt
+0 stdout_capturado.txt
+
+$ ls -la mandelbrot_lagi_*.pgm times.txt
+-rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_openmp.pgm
+-rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_pthreads1.pgm
+-rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_pthreads2.pgm
+-rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_serial.pgm
+-rw-r--r-- 1 nonon nonon   110 times.txt
+
+$ cat times.txt
+Serial: 0.005967 segundos
+OpenMP: 0.001838 segundos
+Pthreads1: 0.003144 segundos
+Pthreads2: 0.001715 segundos
+
+$ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_openmp.pgm
+$ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_pthreads1.pgm
+$ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_pthreads2.pgm
+
+$ ./mandelbrot 50 5 100 20
+$ echo $?
+0
+$ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_pthreads1.pgm
+$ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_pthreads2.pgm
+
+$ ./mandelbrot 800 600 2000 4
+$ echo $?
+0
+$ cat times.txt
+Serial: 0.371079 segundos
+OpenMP: 0.096757 segundos
+Pthreads1: 0.183803 segundos
+Pthreads2: 0.094389 segundos
