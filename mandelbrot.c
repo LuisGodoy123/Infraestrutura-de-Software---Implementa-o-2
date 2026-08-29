@@ -132,6 +132,89 @@ void ExecutaSerial(Config *cfg, unsigned char *buffer) {
     }
 }
 
+int main(int argc, char *argv[]) {
+    Config cfg;
+    if (!LeArgumentos(argc, argv, &cfg)) {
+        return EXIT_FAILURE;
+    }
+
+    unsigned char *buffer = AlocaBuffer(cfg.largura, cfg.altura);
+    if (buffer == NULL) {
+        fprintf(stderr, "falha ao alocar memoria para a imagem.\n");
+        return EXIT_FAILURE;
+    }
+
+    FILE *arqTempos = fopen("times.txt", "w");
+    if (arqTempos == NULL) {
+        fprintf(stderr, "falha ao criar times.txt.\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    fclose(arqTempos);
+
+    char nomeArquivo[256];
+    double inicio, fim;
+
+    inicio = TempoAtual();
+    ExecutaSerial(&cfg, buffer);
+    fim = TempoAtual();
+    MontaNomeArquivo(nomeArquivo, sizeof(nomeArquivo), "serial");
+    if (!SalvaImagem(nomeArquivo, buffer, cfg.largura, cfg.altura)) {
+        fprintf(stderr, "falha ao salvar %s.\n", nomeArquivo);
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    SalvaTempo("times.txt", "Serial", fim - inicio);
+
+    inicio = TempoAtual();
+    ExecutaOpenMP(&cfg, buffer);
+    fim = TempoAtual();
+    MontaNomeArquivo(nomeArquivo, sizeof(nomeArquivo), "openmp");
+    if (!SalvaImagem(nomeArquivo, buffer, cfg.largura, cfg.altura)) {
+        fprintf(stderr, "falha ao salvar %s.\n", nomeArquivo);
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    SalvaTempo("times.txt", "OpenMP", fim - inicio);
+
+    inicio = TempoAtual();
+    if (!ExecutaPthreadsEstatico(&cfg, buffer)) {
+        fprintf(stderr, "falha ao criar threads (pthreads1).\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    fim = TempoAtual();
+    MontaNomeArquivo(nomeArquivo, sizeof(nomeArquivo), "pthreads1");
+    if (!SalvaImagem(nomeArquivo, buffer, cfg.largura, cfg.altura)) {
+        fprintf(stderr, "falha ao salvar %s.\n", nomeArquivo);
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    SalvaTempo("times.txt", "Pthreads1", fim - inicio);
+
+    inicio = TempoAtual();
+    if (!ExecutaPthreadsDinamico(&cfg, buffer)) {
+        fprintf(stderr, "falha ao criar threads (pthreads2).\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    fim = TempoAtual();
+    MontaNomeArquivo(nomeArquivo, sizeof(nomeArquivo), "pthreads2");
+    if (!SalvaImagem(nomeArquivo, buffer, cfg.largura, cfg.altura)) {
+        fprintf(stderr, "falha ao salvar %s.\n", nomeArquivo);
+        free(buffer);
+        return EXIT_FAILURE;
+    }
+    SalvaTempo("times.txt", "Pthreads2", fim - inicio);
+
+    free(buffer);
+    return EXIT_SUCCESS;
+}
+
+void MontaNomeArquivo(char *destino, size_t tamanho, const char *sufixo) {
+    snprintf(destino, tamanho, "mandelbrot_%s_%s.pgm", LOGIN, sufixo);
+}
+
 void *TrabalhoEstatico(void *arg) {
     ArgEstatico *a = (ArgEstatico *)arg;
 

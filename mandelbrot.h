@@ -2,6 +2,7 @@
 #define MANDELBROT_H
 
 #include <pthread.h>
+#include <stddef.h>
 
 #define LOGIN "lagi"
 
@@ -52,5 +53,7 @@ int ExecutaPthreadsEstatico(Config *cfg, unsigned char *buffer);
 
 void *TrabalhoDinamico(void *arg);
 int ExecutaPthreadsDinamico(Config *cfg, unsigned char *buffer);
+
+void MontaNomeArquivo(char *destino, size_t tamanho, const char *sufixo);
 
 #endif
