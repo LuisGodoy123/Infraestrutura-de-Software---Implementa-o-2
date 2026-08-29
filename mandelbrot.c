@@ -88,13 +88,7 @@ int NormalizaIntensidade(int iter, int maxIter) {
 }
 
 unsigned char *AlocaBuffer(int largura, int altura) {
-    size_t total = (size_t)largura * (size_t)altura;
-
-    if (largura != 0 && total / (size_t)largura != (size_t)altura) {
-        return NULL;
-    }
-
-    return (unsigned char *)malloc(total);
+    return (unsigned char *)malloc((size_t)largura * (size_t)altura);
 }
 
 int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int altura) {
@@ -105,7 +99,7 @@ int SalvaImagem(const char *nomeArquivo, unsigned char *buffer, int largura, int
 
     for (int lin = 0; lin < altura; lin++) {
         for (int col = 0; col < largura; col++) {
-            fprintf(arq, col == largura - 1 ? "%d" : "%d ", buffer[lin * largura + col]);
+            fprintf(arq, "%d ", buffer[lin * largura + col]);
         }
         fprintf(arq, "\n");
     }
@@ -164,7 +158,11 @@ int main(int argc, char *argv[]) {
         free(buffer);
         return EXIT_FAILURE;
     }
-    SalvaTempo("times.txt", "Serial", fim - inicio);
+    if (!SalvaTempo("times.txt", "Serial", fim - inicio)) {
+        fprintf(stderr, "falha ao escrever em times.txt.\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
 
     inicio = TempoAtual();
     ExecutaOpenMP(&cfg, buffer);
@@ -175,7 +173,11 @@ int main(int argc, char *argv[]) {
         free(buffer);
         return EXIT_FAILURE;
     }
-    SalvaTempo("times.txt", "OpenMP", fim - inicio);
+    if (!SalvaTempo("times.txt", "OpenMP", fim - inicio)) {
+        fprintf(stderr, "falha ao escrever em times.txt.\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
 
     inicio = TempoAtual();
     if (!ExecutaPthreadsEstatico(&cfg, buffer)) {
@@ -190,7 +192,11 @@ int main(int argc, char *argv[]) {
         free(buffer);
         return EXIT_FAILURE;
     }
-    SalvaTempo("times.txt", "Pthreads1", fim - inicio);
+    if (!SalvaTempo("times.txt", "Pthreads1", fim - inicio)) {
+        fprintf(stderr, "falha ao escrever em times.txt.\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
 
     inicio = TempoAtual();
     if (!ExecutaPthreadsDinamico(&cfg, buffer)) {
@@ -205,7 +211,11 @@ int main(int argc, char *argv[]) {
         free(buffer);
         return EXIT_FAILURE;
     }
-    SalvaTempo("times.txt", "Pthreads2", fim - inicio);
+    if (!SalvaTempo("times.txt", "Pthreads2", fim - inicio)) {
+        fprintf(stderr, "falha ao escrever em times.txt.\n");
+        free(buffer);
+        return EXIT_FAILURE;
+    }
 
     free(buffer);
     return EXIT_SUCCESS;

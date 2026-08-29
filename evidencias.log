@@ -43,17 +43,17 @@ $ wc -c stdout_capturado.txt
 0 stdout_capturado.txt
 
 $ ls -la mandelbrot_lagi_*.pgm times.txt
--rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_openmp.pgm
--rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_pthreads1.pgm
--rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_pthreads2.pgm
--rw-r--r-- 1 nonon nonon 70937 mandelbrot_lagi_serial.pgm
+-rw-r--r-- 1 nonon nonon 71087 mandelbrot_lagi_openmp.pgm
+-rw-r--r-- 1 nonon nonon 71087 mandelbrot_lagi_pthreads1.pgm
+-rw-r--r-- 1 nonon nonon 71087 mandelbrot_lagi_pthreads2.pgm
+-rw-r--r-- 1 nonon nonon 71087 mandelbrot_lagi_serial.pgm
 -rw-r--r-- 1 nonon nonon   110 times.txt
 
 $ cat times.txt
-Serial: 0.005967 segundos
-OpenMP: 0.001838 segundos
-Pthreads1: 0.003144 segundos
-Pthreads2: 0.001715 segundos
+Serial: 0.005980 segundos
+OpenMP: 0.001818 segundos
+Pthreads1: 0.003173 segundos
+Pthreads2: 0.001944 segundos
 
 $ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_openmp.pgm
 $ diff mandelbrot_lagi_serial.pgm mandelbrot_lagi_pthreads1.pgm
@@ -69,7 +69,7 @@ $ ./mandelbrot 800 600 2000 4
 $ echo $?
 0
 $ cat times.txt
-Serial: 0.371079 segundos
-OpenMP: 0.096757 segundos
-Pthreads1: 0.183803 segundos
-Pthreads2: 0.094389 segundos
+Serial: 0.372263 segundos
+OpenMP: 0.096594 segundos
+Pthreads1: 0.182596 segundos
+Pthreads2: 0.096588 segundos
